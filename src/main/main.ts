@@ -51,13 +51,19 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on("ping", () => console.log("pong"));
+  // VC stuff
+
+  // TODO: Make a setting page for this
+  const formatExecutableLocation =
+    "C:\\Program Files\\VeraCrypt\\VeraCrypt Format.exe";
 
   const isWindows = process.platform === "win32";
 
-  ipcMain.on("vc_init", () => {
+  ipcMain.handle("vc_init", async (event, data) => {
     console.log("vc_init");
-    const shell = isWindows ? "powershell.exe" : "bash";
-    
+    console.log({ event, data });
+    const shell = isWindows ? "cmd.exe" : "bash";
+
     const ptyProcess = pty.spawn(shell, [], {
       name: "xterm-color",
       cols: 80,
@@ -66,10 +72,11 @@ app.whenReady().then(() => {
       env: process.env,
     });
 
-    // WORKING CODE
-
-
-
+    // WORKING CODE ONLY FOR WINDOWS
+    const createCommand = `"${formatExecutableLocation}" /create "${data.path}" /size "20M" /password ${data.password} /encryption AES /hash sha-512 /filesystem fat32 /pim 0 /silent`;
+    console.log("sending to console ->", createCommand);
+    ptyProcess.write("& " + createCommand + "\r");
+    return "200 OK";
   });
 
   // C:\Program Files\VeraCrypt

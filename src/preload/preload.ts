@@ -4,11 +4,12 @@ import { electronAPI } from "@electron-toolkit/preload";
 // Custom APIs for renderer
 const sendPingToMainProcess = () => ipcRenderer.send("ping");
 
-const initializeVeracrypt = () => ipcRenderer.send("vc_init")
+const initializeVeracrypt = async (data: { path: string; password: string }) =>
+  ipcRenderer.invoke("vc_init", data);
 
 export const api = {
   sendPingToMainProcess,
-  initializeVeracrypt
+  initializeVeracrypt,
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to
