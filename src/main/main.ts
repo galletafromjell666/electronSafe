@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain } from "electron";
+import { app, shell, BrowserWindow, ipcMain, dialog } from "electron";
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import { join } from "path";
 import pty from "node-pty";
@@ -62,7 +62,7 @@ app.whenReady().then(() => {
   ipcMain.handle("vc_init", async (event, data) => {
     console.log("vc_init");
     console.log({ event, data });
-    const shell = isWindows ? "cmd.exe" : "bash";
+    const shell = isWindows ? "powershell.exe" : "bash";
 
     const ptyProcess = pty.spawn(shell, [], {
       name: "xterm-color",
@@ -77,6 +77,13 @@ app.whenReady().then(() => {
     console.log("sending to console ->", createCommand);
     ptyProcess.write("& " + createCommand + "\r");
     return "200 OK";
+  });
+
+  ipcMain.on("show_native_open_dialog", (event, options) => {
+    event.returnValue = dialog.showOpenDialogSync(
+      BrowserWindow.getFocusedWindow()!,
+      options
+    );
   });
 
   // C:\Program Files\VeraCrypt

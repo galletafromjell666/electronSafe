@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 
 import "./App.css";
+import { isEmpty } from "lodash";
 
 function App() {
   const [password, setPassword] = useState("");
+  const [path, setPath] = useState("");
 
   const handleGenerateContainerClick = async () => {
     const response = await window.api.initializeVeracrypt({
-      path: "E:\\vc_tests_usb\\vctest04x.vc",
+      path,
       password,
     });
     console.log("response from main", response);
@@ -15,13 +17,13 @@ function App() {
 
   // TODO: Remove and see how you can use the native file picker with electron
   const handleFile = async () => {
-    const dirHandle = await window.showDirectoryPicker();
-    console.log("dirHandle", dirHandle);
-    if (!dirHandle) {
-      // User cancelled, or otherwise failed to open a file.
-      return;
-    }
-    console.log(dirHandle);
+    const directory = await window.api.showNativeOpenDialog({
+      properties: ["openFile"],
+    });
+
+    if (isEmpty(directory)) return;
+    console.log("directory", directory[0]);
+    setPath(directory[0]);
   };
 
   return (
@@ -49,6 +51,7 @@ function App() {
           Generate new container
         </button>
         <button onClick={() => handleFile()}>test showDirectoryPicker</button>
+        <p>{path}</p>
         <p>
           Edit <code>src/App.jsx</code> and save to test HMR
         </p>
