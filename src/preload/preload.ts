@@ -10,10 +10,14 @@ const initializeVeracrypt = async (data: { path: string; password: string }) =>
 const showNativeOpenDialog = async (options: any) =>
   ipcRenderer.sendSync("show_native_open_dialog", options);
 
+const showNativeSaveDialog = async (options: any) =>
+  ipcRenderer.sendSync("show_native_save_dialog", options);
+
 export const api = {
   sendPingToMainProcess,
   initializeVeracrypt,
   showNativeOpenDialog,
+  showNativeSaveDialog
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to

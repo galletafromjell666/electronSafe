@@ -6,8 +6,8 @@ import pty from "node-pty";
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 600,
-    height: 400,
+    width: 700,
+    height: 500,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === "linux" ? {} : {}),
@@ -19,6 +19,7 @@ function createWindow() {
 
   mainWindow.on("ready-to-show", () => {
     mainWindow.show();
+    mainWindow.webContents.openDevTools({ mode: "detach" });
   });
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -81,6 +82,13 @@ app.whenReady().then(() => {
 
   ipcMain.on("show_native_open_dialog", (event, options) => {
     event.returnValue = dialog.showOpenDialogSync(
+      BrowserWindow.getFocusedWindow()!,
+      options
+    );
+  });
+
+  ipcMain.on("show_native_save_dialog", (event, options) => {
+    event.returnValue = dialog.showSaveDialogSync(
       BrowserWindow.getFocusedWindow()!,
       options
     );
