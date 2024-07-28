@@ -12,7 +12,7 @@ function createWindow() {
     autoHideMenuBar: true,
     ...(process.platform === "linux" ? {} : {}),
     webPreferences: {
-      preload: join(__dirname, "../preload/preload.mjs"),
+      preload: join(__dirname, "../preload/index.mjs"),
       sandbox: false,
     },
   });

@@ -1,4 +1,3 @@
-import React from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -8,8 +7,8 @@ import {
 import { routeNames } from "./modules/constants";
 import Create from "./modules/create";
 import Mount from "./modules/mount";
-import Settings from "./modules/settings";
 import Header from "./modules/header";
+import Settings from "./modules/settings";
 
 function App() {
   return (

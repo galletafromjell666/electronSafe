@@ -1,20 +1,30 @@
-import { resolve } from 'path'
-import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
-import react from '@vitejs/plugin-react'
+import React from "@vitejs/plugin-react";
+import { resolve } from "path";
+import { defineConfig, externalizeDepsPlugin } from "electron-vite";
+
+const alias = {
+  "@renderer": resolve("src/renderer/src"),
+  "@preload": resolve("src/preload"),
+  "@main": resolve("src/main"),
+};
 
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin()]
+    resolve: {
+      alias,
+    },
+    plugins: [externalizeDepsPlugin()],
   },
   preload: {
-    plugins: [externalizeDepsPlugin()]
+    resolve: {
+      alias,
+    },
+    plugins: [externalizeDepsPlugin()],
   },
   renderer: {
     resolve: {
-      alias: {
-        '@': resolve('src/renderer/src')
-      }
+      alias,
     },
-    plugins: [react()]
-  }
-})
+    plugins: [React()],
+  },
+});

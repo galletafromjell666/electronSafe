@@ -1,4 +1,4 @@
-import { api } from "./preload";
+import { api } from ".";
 export {};
 
 declare global {
