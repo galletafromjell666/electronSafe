@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-
-import "../App.css";
 import { isEmpty } from "lodash";
 
 function App_bak() {
