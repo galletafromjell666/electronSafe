@@ -2,6 +2,7 @@ import { app, shell, BrowserWindow, ipcMain, dialog } from "electron";
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import { join } from "path";
 import pty from "node-pty";
+import * as diskUsage from "diskusage";
 
 function createWindow() {
   // Create the browser window.
@@ -60,9 +61,7 @@ app.whenReady().then(() => {
 
   const isWindows = process.platform === "win32";
 
-  ipcMain.handle("vc_init", async (event, data) => {
-    console.log("vc_init");
-    console.log({ event, data });
+  ipcMain.handle("vc_init", async (_event, data) => {
     const shell = isWindows ? "powershell.exe" : "bash";
 
     const ptyProcess = pty.spawn(shell, [], {
@@ -92,6 +91,14 @@ app.whenReady().then(() => {
       BrowserWindow.getFocusedWindow()!,
       options
     );
+  });
+
+  ipcMain.handle("get_volume_details", async (_event, path: string) => {
+    console.log("get_volume_details", { path });
+    // TODO: Support other OS besides Windows
+    const [drive] = path.split(isWindows ? "\\" : "/");
+    const volumeStats = await diskUsage.check(drive);
+    return volumeStats;
   });
 
   // C:\Program Files\VeraCrypt

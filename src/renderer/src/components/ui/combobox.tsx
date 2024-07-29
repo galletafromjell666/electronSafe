@@ -14,7 +14,7 @@ import {
   PopoverTrigger,
 } from "@renderer/components/ui/popover";
 import { Button } from "@renderer/components/ui/button";
-import { Check, Maximize2, Search } from "lucide-react";
+import { Check, Maximize2 } from "lucide-react";
 
 interface ComboboxItems {
   value: string;

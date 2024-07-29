@@ -13,11 +13,15 @@ const showNativeOpenDialog = async (options: any) =>
 const showNativeSaveDialog = async (options: any) =>
   ipcRenderer.sendSync("show_native_save_dialog", options);
 
+const getVolumeDetails = async (path: string) =>
+  ipcRenderer.invoke("get_volume_details", path);
+
 export const api = {
   sendPingToMainProcess,
   initializeVeracrypt,
   showNativeOpenDialog,
-  showNativeSaveDialog
+  showNativeSaveDialog,
+  getVolumeDetails,
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to
