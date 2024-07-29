@@ -13,9 +13,7 @@ import Settings from "./modules/settings";
 function App() {
   return (
     <Router>
-      <nav>
         <Header />
-      </nav>
       <Routes>
         {/* The default route is the create route */}
         <Route path="/" element={<Navigate to={routeNames.Create} />} />

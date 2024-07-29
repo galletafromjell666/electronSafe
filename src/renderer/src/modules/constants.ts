@@ -1,5 +1,5 @@
 export enum routeNames {
-  "Mount" = "mount",
-  "Create" = "create",
-  "Settings" = "settings",
+  "Mount" = "/mount",
+  "Create" = "/create",
+  "Settings" = "/settings",
 }
