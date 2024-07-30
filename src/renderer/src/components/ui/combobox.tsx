@@ -25,6 +25,8 @@ interface ComboboxProps {
     placeholder: string
     noResultsMessage: string
     items: Array<ComboboxItems>
+    value: string
+    setValue: (a: string) => void
 }
 /**
  * Please read https://github.com/shadcn-ui/ui/issues/2980
@@ -33,11 +35,10 @@ export function Combobox({
     items,
     placeholder,
     noResultsMessage,
+    value,
+    setValue,
 }: ComboboxProps) {
     const [open, setOpen] = React.useState(false)
-    const [value, setValue] = React.useState('')
-
-    console.log('combobox items', { items })
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>

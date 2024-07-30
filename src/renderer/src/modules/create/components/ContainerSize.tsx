@@ -1,5 +1,6 @@
 import { Input } from '@renderer/components/ui/input'
 import { Progress } from '@renderer/components/ui/progress'
+import { convertBytesToGigaBytes } from '@renderer/utils/storage'
 
 interface ContainerSizeProps {
     containerSize: number
@@ -44,7 +45,7 @@ function ContainerSize({
                         className={`w-[${volumeDetails.percentUsed}%]`}
                     />
                     <p className="mt-2 leading-7">
-                        {`${volumeDetails.free}GB Free of ${volumeDetails.total}GB - ${volumeDetails.percentUsed}% Used`}
+                        {`${convertBytesToGigaBytes(volumeDetails.free)}GB Free of ${convertBytesToGigaBytes(volumeDetails.total)}GB - ${volumeDetails.percentUsed}% Used`}
                     </p>
                 </div>
             </div>

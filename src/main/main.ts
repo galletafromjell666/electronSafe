@@ -4,11 +4,14 @@ import { join } from 'path'
 import pty from 'node-pty'
 import * as diskUsage from 'diskusage'
 
-function createWindow() {
+function createWindow(): void {
     // Create the browser window.
     const mainWindow = new BrowserWindow({
+        useContentSize: true,
         width: 900,
-        height: 600,
+        minWidth: 400,
+        height: 595,
+        minHeight: 595,
         show: false,
         autoHideMenuBar: true,
         ...(process.platform === 'linux' ? {} : {}),

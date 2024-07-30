@@ -1,8 +1,9 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import { DiskUsage } from 'diskusage'
 
 // Custom APIs for renderer
-const sendPingToMainProcess = () => ipcRenderer.send('ping')
+const sendPingToMainProcess = (): void => ipcRenderer.send('ping')
 
 const initializeVeracrypt = async (data: { path: string; password: string }) =>
     ipcRenderer.invoke('vc_init', data)
@@ -13,7 +14,7 @@ const showNativeOpenDialog = async (options: any) =>
 const showNativeSaveDialog = async (options: any) =>
     ipcRenderer.sendSync('show_native_save_dialog', options)
 
-const getVolumeDetails = async (path: string) =>
+const getVolumeDetails = async (path: string): Promise<DiskUsage> =>
     ipcRenderer.invoke('get_volume_details', path)
 
 export const api = {

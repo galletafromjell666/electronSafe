@@ -6,7 +6,15 @@ const algorithms = [
     { label: 'Camellia', value: 'camellia' },
 ]
 
-function EncryptionAlgorithm(): JSX.Element {
+interface EncryptionAlgorithmProps {
+    setEncryptionAlgorithm: (a: string) => void
+    encryptionAlgorithm: string
+}
+
+function EncryptionAlgorithm({
+    setEncryptionAlgorithm,
+    encryptionAlgorithm,
+}: EncryptionAlgorithmProps): JSX.Element {
     return (
         <div
             className="rounded-lg border-2 p-4"
@@ -16,6 +24,8 @@ function EncryptionAlgorithm(): JSX.Element {
                 Encryption Algorithm
             </h4>
             <Combobox
+                setValue={setEncryptionAlgorithm}
+                value={encryptionAlgorithm}
                 items={algorithms}
                 placeholder="Select an algorithm"
                 noResultsMessage="No algorithm found"

@@ -10,7 +10,7 @@ import Mount from './modules/mount'
 import Header from './modules/header'
 import Settings from './modules/settings'
 
-function App() {
+function App(): JSX.Element {
     return (
         <Router>
             <Header />

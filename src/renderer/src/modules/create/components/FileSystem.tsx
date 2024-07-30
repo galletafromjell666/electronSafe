@@ -6,7 +6,15 @@ const fileSystems = [
     { label: 'exFAT', value: 'exfat' },
 ]
 
-function FileSystem(): JSX.Element {
+interface FileSystemProps {
+    setFileSystem: (a: string) => void
+    fileSystem: string
+}
+
+function FileSystem({
+    setFileSystem,
+    fileSystem,
+}: FileSystemProps): JSX.Element {
     return (
         <div
             className="rounded-lg border-2 p-4"
@@ -17,6 +25,8 @@ function FileSystem(): JSX.Element {
             </h4>
             <Combobox
                 items={fileSystems}
+                setValue={setFileSystem}
+                value={fileSystem}
                 placeholder="Select a file system"
                 noResultsMessage="No file system found"
             />
