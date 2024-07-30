@@ -1,7 +1,7 @@
-import React from "react";
+import React from 'react'
 
 function Mount() {
-  return <div>Mount</div>;
+    return <div>Mount</div>
 }
 
-export default Mount;
+export default Mount

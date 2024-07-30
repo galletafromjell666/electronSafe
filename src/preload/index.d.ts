@@ -1,9 +1,9 @@
-import { api } from ".";
-export {};
+import { api } from '.'
+export {}
 
 declare global {
-  interface Window {
-    electron: any;
-    api: typeof api;
-  }
+    interface Window {
+        electron: any
+        api: typeof api
+    }
 }

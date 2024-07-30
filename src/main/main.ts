@@ -1,124 +1,124 @@
-import { app, shell, BrowserWindow, ipcMain, dialog } from "electron";
-import { electronApp, optimizer, is } from "@electron-toolkit/utils";
-import { join } from "path";
-import pty from "node-pty";
-import * as diskUsage from "diskusage";
+import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
+import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+import { join } from 'path'
+import pty from 'node-pty'
+import * as diskUsage from 'diskusage'
 
 function createWindow() {
-  // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    width: 700,
-    height: 500,
-    show: false,
-    autoHideMenuBar: true,
-    ...(process.platform === "linux" ? {} : {}),
-    webPreferences: {
-      preload: join(__dirname, "../preload/index.mjs"),
-      sandbox: false,
-    },
-  });
+    // Create the browser window.
+    const mainWindow = new BrowserWindow({
+        width: 900,
+        height: 600,
+        show: false,
+        autoHideMenuBar: true,
+        ...(process.platform === 'linux' ? {} : {}),
+        webPreferences: {
+            preload: join(__dirname, '../preload/index.mjs'),
+            sandbox: false,
+        },
+    })
 
-  mainWindow.on("ready-to-show", () => {
-    mainWindow.show();
-    mainWindow.webContents.openDevTools({ mode: "detach" });
-  });
+    mainWindow.on('ready-to-show', () => {
+        mainWindow.show()
+        mainWindow.webContents.openDevTools({ mode: 'detach' })
+    })
 
-  mainWindow.webContents.setWindowOpenHandler((details) => {
-    shell.openExternal(details.url);
-    return { action: "deny" };
-  });
+    mainWindow.webContents.setWindowOpenHandler((details) => {
+        shell.openExternal(details.url)
+        return { action: 'deny' }
+    })
 
-  // HMR for renderer base on electron-vite cli.
-  // Load the remote URL for development or the local html file for production.
-  if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
-    mainWindow.loadURL(process.env["ELECTRON_RENDERER_URL"]);
-  } else {
-    mainWindow.loadFile(join(__dirname, "../renderer/index.html"));
-  }
+    // HMR for renderer base on electron-vite cli.
+    // Load the remote URL for development or the local html file for production.
+    if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+        mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
+    } else {
+        mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+    }
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  // Set app user model id for windows
-  electronApp.setAppUserModelId("com.electron");
+    // Set app user model id for windows
+    electronApp.setAppUserModelId('com.electron')
 
-  // Default open or close DevTools by F12 in development
-  // and ignore CommandOrControl + R in production.
-  // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
-  app.on("browser-window-created", (_, window) => {
-    optimizer.watchWindowShortcuts(window);
-  });
+    // Default open or close DevTools by F12 in development
+    // and ignore CommandOrControl + R in production.
+    // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
+    app.on('browser-window-created', (_, window) => {
+        optimizer.watchWindowShortcuts(window)
+    })
 
-  // IPC test
-  ipcMain.on("ping", () => console.log("pong"));
-  // VC stuff
+    // IPC test
+    ipcMain.on('ping', () => console.log('pong'))
+    // VC stuff
 
-  // TODO: Make a setting page for this
-  const formatExecutableLocation =
-    "C:\\Program Files\\VeraCrypt\\VeraCrypt Format.exe";
+    // TODO: Make a setting page for this
+    const formatExecutableLocation =
+        'C:\\Program Files\\VeraCrypt\\VeraCrypt Format.exe'
 
-  const isWindows = process.platform === "win32";
+    const isWindows = process.platform === 'win32'
 
-  ipcMain.handle("vc_init", async (_event, data) => {
-    const shell = isWindows ? "powershell.exe" : "bash";
+    ipcMain.handle('vc_init', async (_event, data) => {
+        const shell = isWindows ? 'powershell.exe' : 'bash'
 
-    const ptyProcess = pty.spawn(shell, [], {
-      name: "xterm-color",
-      cols: 80,
-      rows: 30,
-      cwd: process.cwd(),
-      env: process.env,
-    });
+        const ptyProcess = pty.spawn(shell, [], {
+            name: 'xterm-color',
+            cols: 80,
+            rows: 30,
+            cwd: process.cwd(),
+            env: process.env,
+        })
 
-    // WORKING CODE ONLY FOR WINDOWS
-    const createCommand = `"${formatExecutableLocation}" /create "${data.path}" /size "20M" /password ${data.password} /encryption AES /hash sha-512 /filesystem fat32 /pim 0 /silent`;
-    console.log("sending to console ->", createCommand);
-    ptyProcess.write("& " + createCommand + "\r");
-    return "200 OK";
-  });
+        // WORKING CODE ONLY FOR WINDOWS
+        const createCommand = `"${formatExecutableLocation}" /create "${data.path}" /size "20M" /password ${data.password} /encryption AES /hash sha-512 /filesystem fat32 /pim 0 /silent`
+        console.log('sending to console ->', createCommand)
+        ptyProcess.write('& ' + createCommand + '\r')
+        return '200 OK'
+    })
 
-  ipcMain.on("show_native_open_dialog", (event, options) => {
-    event.returnValue = dialog.showOpenDialogSync(
-      BrowserWindow.getFocusedWindow()!,
-      options
-    );
-  });
+    ipcMain.on('show_native_open_dialog', (event, options) => {
+        event.returnValue = dialog.showOpenDialogSync(
+            BrowserWindow.getFocusedWindow()!,
+            options
+        )
+    })
 
-  ipcMain.on("show_native_save_dialog", (event, options) => {
-    event.returnValue = dialog.showSaveDialogSync(
-      BrowserWindow.getFocusedWindow()!,
-      options
-    );
-  });
+    ipcMain.on('show_native_save_dialog', (event, options) => {
+        event.returnValue = dialog.showSaveDialogSync(
+            BrowserWindow.getFocusedWindow()!,
+            options
+        )
+    })
 
-  ipcMain.handle("get_volume_details", async (_event, path: string) => {
-    console.log("get_volume_details", { path });
-    // TODO: Support other OS besides Windows
-    const [drive] = path.split(isWindows ? "\\" : "/");
-    const volumeStats = await diskUsage.check(drive);
-    return volumeStats;
-  });
+    ipcMain.handle('get_volume_details', async (_event, path: string) => {
+        console.log('get_volume_details', { path })
+        // TODO: Support other OS besides Windows
+        const [drive] = path.split(isWindows ? '\\' : '/')
+        const volumeStats = await diskUsage.check(drive)
+        return volumeStats
+    })
 
-  // C:\Program Files\VeraCrypt
-  createWindow();
+    // C:\Program Files\VeraCrypt
+    createWindow()
 
-  app.on("activate", function () {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
-  });
-});
+    app.on('activate', function () {
+        // On macOS it's common to re-create a window in the app when the
+        // dock icon is clicked and there are no other windows open.
+        if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    })
+})
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
-});
+app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') {
+        app.quit()
+    }
+})
 
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
