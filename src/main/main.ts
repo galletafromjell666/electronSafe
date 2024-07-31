@@ -3,6 +3,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { join } from 'path'
 import pty from 'node-pty'
 import * as diskUsage from 'diskusage'
+import * as driveList from 'drivelist'
 
 function createWindow(): void {
     // Create the browser window.
@@ -104,7 +105,11 @@ app.whenReady().then(() => {
         return volumeStats
     })
 
-    // C:\Program Files\VeraCrypt
+    ipcMain.handle('get_available_volumes', async () => {
+        console.log('get_available_volumes')
+        return await driveList.list()
+    })
+
     createWindow()
 
     app.on('activate', function () {
