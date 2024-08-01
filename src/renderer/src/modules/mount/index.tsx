@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Button } from '@renderer/components/ui/button'
 import { Input } from '@renderer/components/ui/input'
 import { isEmpty } from 'lodash'
-import ContainersTable from './ContainersTable'
+import ContainersList from './ContainersList'
 
 function Mount(): JSX.Element {
     const [targetContainerPath, setTargetContainerPath] = useState('')
@@ -14,9 +14,14 @@ function Mount(): JSX.Element {
 
         if (isEmpty(containerOpenPath)) return
         setTargetContainerPath(containerOpenPath[0])
+
+        window.api.mountEncryptedContainer({
+            path: containerOpenPath[0],
+            password: 'andrea12',
+        })
     }
     return (
-        <div className="live-area relative m-2 rounded-lg border-2 p-4 pb-0">
+        <div className="live-area relative m-2 overflow-hidden rounded-lg border-2 p-4 pb-0">
             <div>
                 <h2 className="scroll-m-20 pb-2 text-2xl font-semibold tracking-tight transition-colors first:mt-0">
                     Mount an encrypted container
@@ -47,8 +52,8 @@ function Mount(): JSX.Element {
                             View and manage your currently mounted encrypted
                             containers.
                         </p>
-                        <div className='p-2'>
-                            <ContainersTable />
+                        <div className="mounted-containers">
+                            <ContainersList />
                         </div>
                     </div>
                 </div>

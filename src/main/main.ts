@@ -63,23 +63,43 @@ app.whenReady().then(() => {
     const formatExecutableLocation =
         'C:\\Program Files\\VeraCrypt\\VeraCrypt Format.exe'
 
+    const normalExecutableLocation =
+        'C:\\Program Files\\VeraCrypt\\VeraCrypt.exe'
     const isWindows = process.platform === 'win32'
 
-    ipcMain.handle('vc_init', async (_event, data) => {
-        const shell = isWindows ? 'powershell.exe' : 'bash'
+    const shell = isWindows ? 'powershell.exe' : 'bash'
 
-        const ptyProcess = pty.spawn(shell, [], {
-            name: 'xterm-color',
-            cols: 80,
-            rows: 30,
-            cwd: process.cwd(),
-            env: process.env,
-        })
+    const ptyProcess = pty.spawn(shell, [], {
+        name: 'xterm-color',
+        cols: 80,
+        rows: 30,
+        cwd: process.cwd(),
+        env: process.env,
+    })
 
+    ptyProcess.onExit((e) => console.log(e))
+
+    ptyProcess.onData((data) => console.log('\ndata', data, '\n'))
+
+    const runCommandoOnPty = (command: string): void =>
+        ptyProcess.write('& ' + command + '\r')
+
+    ipcMain.handle('create_container', async (_event, data) => {
         // WORKING CODE ONLY FOR WINDOWS
+        console.log('CREATE!', data)
         const createCommand = `"${formatExecutableLocation}" /create "${data.path}" /size "20M" /password ${data.password} /encryption AES /hash sha-512 /filesystem fat32 /pim 0 /silent`
         console.log('sending to console ->', createCommand)
-        ptyProcess.write('& ' + createCommand + '\r')
+        runCommandoOnPty(createCommand)
+        return '200 OK'
+    })
+
+    ipcMain.handle('container_mount', async (_event, data) => {
+        console.log('MOUNT!', data)
+        // const mountCommand = `"${normalExecutableLocation}" /volume "${data.path}" /letter G /password "${data.password}" /quit /silent`
+        const mountCommand = `$process = Start-Process -FilePath "C:\\Program Files\\VeraCrypt\\VeraCrypt.exe" -ArgumentList '/q','/v E:\\vc_tests_usb\\vctest01.vc','/l G','/silent','/p ___' -PassThru -Wait; Write-Host "EXIT CODE" $process.ExitCode`
+        console.log('sending to console ->', mountCommand)
+        runCommandoOnPty('echo hi!')
+        ptyProcess.write(mountCommand + '\r')
         return '200 OK'
     })
 
@@ -105,6 +125,7 @@ app.whenReady().then(() => {
         return volumeStats
     })
 
+    // DOES NOT RETURN THE MOUNTED DRIVES :(
     ipcMain.handle('get_available_volumes', async () => {
         console.log('get_available_volumes')
         return await driveList.list()

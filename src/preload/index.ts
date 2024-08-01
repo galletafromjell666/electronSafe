@@ -6,10 +6,15 @@ import { type Drive } from 'drivelist'
 // Custom APIs for renderer
 const sendPingToMainProcess = (): void => ipcRenderer.send('ping')
 
-const initializeVeracrypt = async (data: {
+const createEncryptedContainer = async (data: {
     path: string
     password: string
-}): Promise<string> => ipcRenderer.invoke('vc_init', data)
+}): Promise<string> => ipcRenderer.invoke('create_container', data)
+
+const mountEncryptedContainer = async (data: {
+    path: string
+    password: string
+}): Promise<string> => ipcRenderer.invoke('container_mount', data)
 
 const showNativeOpenDialog = async (options: any) =>
     ipcRenderer.sendSync('show_native_open_dialog', options)
@@ -25,11 +30,12 @@ const getAvailableVolumes = async (): Promise<Drive[]> =>
 
 export const api = {
     sendPingToMainProcess,
-    initializeVeracrypt,
+    createEncryptedContainer,
     showNativeOpenDialog,
     showNativeSaveDialog,
     getVolumeDetails,
     getAvailableVolumes,
+    mountEncryptedContainer,
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
