@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Button } from '@renderer/components/ui/button'
 import { Input } from '@renderer/components/ui/input'
 import { isEmpty } from 'lodash'
@@ -6,6 +6,12 @@ import ContainersList from './ContainersList'
 
 function Mount(): JSX.Element {
     const [targetContainerPath, setTargetContainerPath] = useState('')
+    const [password, setPassword] = useState('')
+
+    const resetInputs = useCallback(() => {
+        setTargetContainerPath('')
+        setPassword('')
+    }, [])
 
     const handleLocationInput = async (): Promise<void> => {
         const containerOpenPath = await window.api.showNativeOpenDialog({
@@ -14,11 +20,16 @@ function Mount(): JSX.Element {
 
         if (isEmpty(containerOpenPath)) return
         setTargetContainerPath(containerOpenPath[0])
+    }
 
-        window.api.mountEncryptedContainer({
-            path: containerOpenPath[0],
-            password: 'andrea12',
+    const handleMountButtonClick = async (): Promise<void> => {
+        console.log('Mounting!')
+        const data = await window.api.mountEncryptedContainer({
+            path: targetContainerPath,
+            password,
         })
+        console.log('mount result', data)
+        resetInputs()
     }
     return (
         <div className="live-area relative m-2 overflow-hidden rounded-lg border-2 p-4 pb-0">
@@ -35,12 +46,30 @@ function Mount(): JSX.Element {
                         <div className="flex flex-row gap-x-4">
                             <Input
                                 onClick={() => handleLocationInput()}
+                                onChange={(e) =>
+                                    setTargetContainerPath(e.target.value)
+                                }
                                 type="text"
-                                placeholder="Select encrypted container"
+                                placeholder="Select an encrypted container"
                                 value={targetContainerPath}
                             />
                             <Button onClick={() => handleLocationInput()}>
                                 Browse
+                            </Button>
+                        </div>
+                        <Input
+                            className="mt-4"
+                            onChange={(e) => setPassword(e.target.value)}
+                            type="password"
+                            placeholder="Enter the container password"
+                            value={password}
+                        />
+                        <div className="mt-4 flex flex-1 justify-center">
+                            <Button
+                                className="w-1/2"
+                                onClick={() => handleMountButtonClick()}
+                            >
+                                Mount encrypted container
                             </Button>
                         </div>
                     </div>

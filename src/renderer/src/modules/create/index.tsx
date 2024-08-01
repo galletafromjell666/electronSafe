@@ -54,7 +54,6 @@ function Create(): JSX.Element {
     }
 
     const handleLocationInput = async (): Promise<void> => {
-        console.log('handleLocationInput')
         const containerSavePath = await window.api.showNativeSaveDialog({
             title: 'new encrypted container',
             defaultPath: 'myNewEncryptedContainer.safe',
@@ -63,6 +62,7 @@ function Create(): JSX.Element {
         if (isEmpty(containerSavePath)) {
             setVolumeDetails(null)
             setPath('')
+            return
         }
 
         const volumeStats = await window.api.getVolumeDetails(containerSavePath)
@@ -84,6 +84,7 @@ function Create(): JSX.Element {
                     <ContainerLocation
                         path={path}
                         handleLocationInput={handleLocationInput}
+                        handleLocationChange={setPath}
                     />
                     {volumeDetails?.percentUsed ? (
                         <ContainerSize

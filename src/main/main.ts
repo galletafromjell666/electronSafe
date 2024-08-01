@@ -77,28 +77,57 @@ app.whenReady().then(() => {
         env: process.env,
     })
 
-    ptyProcess.onExit((e) => console.log(e))
-
-    ptyProcess.onData((data) => console.log('\ndata', data, '\n'))
+    // ptyProcess.onData((data) => console.log('ON OUTDATA', data + ""))
 
     const runCommandoOnPty = (command: string): void =>
-        ptyProcess.write('& ' + command + '\r')
+        ptyProcess.write(command + '\r')
 
     ipcMain.handle('create_container', async (_event, data) => {
-        // WORKING CODE ONLY FOR WINDOWS
+        // WORKING CODE FOR WINDOWS ONLY
+        // TODO: Update like the container_mount so you the EXIT CODE
         console.log('CREATE!', data)
-        const createCommand = `"${formatExecutableLocation}" /create "${data.path}" /size "20M" /password ${data.password} /encryption AES /hash sha-512 /filesystem fat32 /pim 0 /silent`
+        const createCommand =
+            '& ' +
+            `"${formatExecutableLocation}" /create "${data.path}" /size "20M" /password ${data.password} /encryption AES /hash sha-512 /filesystem fat32 /pim 0 /silent`
         console.log('sending to console ->', createCommand)
         runCommandoOnPty(createCommand)
         return '200 OK'
     })
 
     ipcMain.handle('container_mount', async (_event, data) => {
+        const mountLetter = 'G'
         console.log('MOUNT!', data)
         // const mountCommand = `"${normalExecutableLocation}" /volume "${data.path}" /letter G /password "${data.password}" /quit /silent`
-        const mountCommand = `$process = Start-Process -FilePath "C:\\Program Files\\VeraCrypt\\VeraCrypt.exe" -ArgumentList '/q','/v E:\\vc_tests_usb\\vctest01.vc','/l G','/silent','/p ___' -PassThru -Wait; Write-Host "EXIT CODE" $process.ExitCode`
-        console.log('sending to console ->', mountCommand)
-        runCommandoOnPty('echo hi!')
+        const mountCommand = `$process = Start-Process -FilePath "${normalExecutableLocation}" -ArgumentList '/q','/v ${data.path}','/l ${mountLetter}','/silent','/p ${data.password}' -PassThru -Wait; Write-Host ":"$process.ExitCode"${data.path}:${mountLetter}"`
+        // console.log('sending to console ->', mountCommand)
+        // runCommandoOnPty('echo hi!')
+
+        return new Promise((resolve) => {
+            let output = ''
+
+            // Listen for data event to capture command output
+            ptyProcess.onData((data) => {
+                output += data
+                console.log(data)
+                // Check if the output contains the expected result
+                if (output.includes(':')) {
+                    const exitCodeIndex = output.indexOf(':')
+                    const exitCode = output.substring(
+                        exitCodeIndex + 1,
+                        exitCodeIndex + 2
+                    )
+                    const pathAndLetter = output
+                        .substring(exitCodeIndex + 2)
+                        .trim()
+
+                    resolve({ exitCode, pathAndLetter, data })
+                }
+            })
+
+            // Write the command to the PowerShell process
+            ptyProcess.write(mountCommand + '\r')
+        })
+
         ptyProcess.write(mountCommand + '\r')
         return '200 OK'
     })
