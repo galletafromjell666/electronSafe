@@ -16,10 +16,9 @@ import {
 import { Button } from '@renderer/components/ui/button'
 import { useTheme } from '@renderer/ThemeProvider'
 
-function Header() {
+function Header(): JSX.Element {
     const { pathname } = useLocation()
     const { setTheme, theme } = useTheme()
-    console.log({ theme })
     // TODO: Fix warning with the link component
     return (
         <NavigationMenu className="w-full max-w-[none] justify-between border-b-2 p-1">

@@ -1,37 +1,39 @@
 import { Button } from '@renderer/components/ui/button'
 import { HardDriveUpload } from 'lucide-react'
-
-const data = [
-    {
-        name: 'C:\\Users\\gio\\Documents\\GitHub\\safeElectron.exe',
-        mountPoint: 'A:',
-    },
-    {
-        name: 'C:\\Users\\gio\\Documents\\gio.exe',
-        mountPoint: 'H:',
-    },
-    {
-        name: 'C:\\Users\\gio\\uwu.exe',
-        mountPoint: 'G:',
-    },
-    {
-        name: 'C:\\Users\\gio\\uwu2.exe',
-        mountPoint: 'Z:',
-    },
-    {
-        name: 'C:\\Users\\Alex\\test.exe',
-        mountPoint: 'G:',
-    },
-    {
-        name: 'C:\\Users\\Alex\\mapache.exe',
-        mountPoint: 'Z:',
-    },
-]
+import { useEffect, useState } from 'react'
+interface MountedContainer {
+    containerPath: string
+    driveLetter: string
+}
 
 function ContainersList(): JSX.Element {
+    // TODO: Use zustand or context
+    const [containers, setContainers] = useState<MountedContainer[]>([])
+
+    useEffect(() => {
+        const handleMount = (_event: unknown, data: MountedContainer): void => {
+            setContainers((prevContainers) => {
+                if (
+                    prevContainers.some(
+                        (c) => c.containerPath === data.containerPath
+                    )
+                ) {
+                    return prevContainers
+                }
+                return [...prevContainers, data]
+            })
+        }
+        window.ipc.on('MOUNT_COMMAND_COMPLETED', handleMount)
+
+        return (): void => {
+            window.ipc.removeListener('MOUNT_COMMAND_COMPLETED', handleMount)
+        }
+    }, [])
+
     const handleDismountButtonClick = (a): void => {
         console.log(a)
     }
+
     return (
         <div>
             <div className="flex w-full flex-1 flex-row border-b-2 p-2 text-sm text-muted-foreground transition-colors hover:bg-muted/50">
@@ -39,17 +41,17 @@ function ContainersList(): JSX.Element {
                 <div className="w-[30%]">Mount Point</div>
                 <div className="w-[20%]">Actions</div>
             </div>
-            {data.map((e) => {
+            {containers.map((e) => {
                 return (
                     <div
-                        key={e.name}
+                        key={e.containerPath}
                         className="container-row flex w-full flex-1 flex-row border-b-2 p-2 transition-colors hover:bg-muted/50"
                     >
                         <div className="my-auto w-2/4">
-                            <p>{e.name}</p>
+                            <p>{e.containerPath}</p>
                         </div>
                         <div className="my-auto w-[30%]">
-                            <p>{`${e.mountPoint}`}</p>
+                            <p>{`${e.driveLetter}`}</p>
                         </div>
                         <div className="action-cell pointer-events-none my-auto w-[20%] opacity-0 transition-colors">
                             <Button

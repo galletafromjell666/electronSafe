@@ -1,50 +1,16 @@
-import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
-import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import { join } from 'path'
+import { app, BrowserWindow, ipcMain, dialog } from 'electron'
+import { electronApp, optimizer } from '@electron-toolkit/utils'
 import pty from 'node-pty'
 import * as diskUsage from 'diskusage'
 import * as driveList from 'drivelist'
-
-function createWindow(): void {
-    // Create the browser window.
-    const mainWindow = new BrowserWindow({
-        useContentSize: true,
-        width: 900,
-        minWidth: 400,
-        height: 595,
-        minHeight: 595,
-        show: false,
-        autoHideMenuBar: true,
-        ...(process.platform === 'linux' ? {} : {}),
-        webPreferences: {
-            preload: join(__dirname, '../preload/index.mjs'),
-            sandbox: false,
-        },
-    })
-
-    mainWindow.on('ready-to-show', () => {
-        mainWindow.show()
-        mainWindow.webContents.openDevTools({ mode: 'detach' })
-    })
-
-    mainWindow.webContents.setWindowOpenHandler((details) => {
-        shell.openExternal(details.url)
-        return { action: 'deny' }
-    })
-
-    // HMR for renderer base on electron-vite cli.
-    // Load the remote URL for development or the local html file for production.
-    if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-        mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
-    } else {
-        mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
-    }
-}
+import MainWindow from './mainWindow'
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
+
 app.whenReady().then(() => {
+    MainWindow.createWindow()
     // Set app user model id for windows
     electronApp.setAppUserModelId('com.electron')
 
@@ -77,7 +43,35 @@ app.whenReady().then(() => {
         env: process.env,
     })
 
-    // ptyProcess.onData((data) => console.log('ON OUTDATA', data + ""))
+    let buffer = ''
+
+    ptyProcess.onData((data) => {
+        buffer += data // Append incoming data to the buffer
+
+        // Split buffer by the Windows line ending \x0D\x0A
+        const lines = buffer.split('\x0D\x0A')
+        // Process each complete line (all but the last element of the split array)
+        for (let i = 0; i < lines.length - 1; i++) {
+            const line = lines[i]
+            if (line.includes('MOUNT_A') && !line.includes('PS')) {
+                const dataArr = line.split('*')
+                if (dataArr.length >= 4) {
+                    const containerPath = dataArr[2].trim()
+                    const driveLetter = dataArr[3].trim()
+                    MainWindow.Window.webContents.send(
+                        'MOUNT_COMMAND_COMPLETED',
+                        {
+                            containerPath,
+                            driveLetter,
+                        }
+                    )
+                } else {
+                    console.warn('Unexpected format for MOUNT_A line:', line)
+                }
+            }
+        }
+        buffer = lines[lines.length - 1]
+    })
 
     const runCommandoOnPty = (command: string): void =>
         ptyProcess.write(command + '\r')
@@ -85,51 +79,17 @@ app.whenReady().then(() => {
     ipcMain.handle('create_container', async (_event, data) => {
         // WORKING CODE FOR WINDOWS ONLY
         // TODO: Update like the container_mount so you the EXIT CODE
-        console.log('CREATE!', data)
         const createCommand =
             '& ' +
             `"${formatExecutableLocation}" /create "${data.path}" /size "20M" /password ${data.password} /encryption AES /hash sha-512 /filesystem fat32 /pim 0 /silent`
-        console.log('sending to console ->', createCommand)
         runCommandoOnPty(createCommand)
         return '200 OK'
     })
 
     ipcMain.handle('container_mount', async (_event, data) => {
         const mountLetter = 'G'
-        console.log('MOUNT!', data)
-        // const mountCommand = `"${normalExecutableLocation}" /volume "${data.path}" /letter G /password "${data.password}" /quit /silent`
-        const mountCommand = `$process = Start-Process -FilePath "${normalExecutableLocation}" -ArgumentList '/q','/v ${data.path}','/l ${mountLetter}','/silent','/p ${data.password}' -PassThru -Wait; Write-Host ":"$process.ExitCode"${data.path}:${mountLetter}"`
-        // console.log('sending to console ->', mountCommand)
-        // runCommandoOnPty('echo hi!')
-
-        return new Promise((resolve) => {
-            let output = ''
-
-            // Listen for data event to capture command output
-            ptyProcess.onData((data) => {
-                output += data
-                console.log(data)
-                // Check if the output contains the expected result
-                if (output.includes(':')) {
-                    const exitCodeIndex = output.indexOf(':')
-                    const exitCode = output.substring(
-                        exitCodeIndex + 1,
-                        exitCodeIndex + 2
-                    )
-                    const pathAndLetter = output
-                        .substring(exitCodeIndex + 2)
-                        .trim()
-
-                    resolve({ exitCode, pathAndLetter, data })
-                }
-            })
-
-            // Write the command to the PowerShell process
-            ptyProcess.write(mountCommand + '\r')
-        })
-
+        const mountCommand = `$process = Start-Process -FilePath "${normalExecutableLocation}" -ArgumentList '/q','/v ${data.path}','/l ${mountLetter}','/silent','/p ${data.password}' -PassThru -Wait; Write-Host "MOUNT_A*"$process.ExitCode*"${data.path}*${mountLetter}"`
         ptyProcess.write(mountCommand + '\r')
-        return '200 OK'
     })
 
     ipcMain.on('show_native_open_dialog', (event, options) => {
@@ -147,7 +107,6 @@ app.whenReady().then(() => {
     })
 
     ipcMain.handle('get_volume_details', async (_event, path: string) => {
-        console.log('get_volume_details', { path })
         // TODO: Support other OS besides Windows
         const [drive] = path.split(isWindows ? '\\' : '/')
         const volumeStats = await diskUsage.check(drive)
@@ -156,16 +115,14 @@ app.whenReady().then(() => {
 
     // DOES NOT RETURN THE MOUNTED DRIVES :(
     ipcMain.handle('get_available_volumes', async () => {
-        console.log('get_available_volumes')
         return await driveList.list()
     })
-
-    createWindow()
 
     app.on('activate', function () {
         // On macOS it's common to re-create a window in the app when the
         // dock icon is clicked and there are no other windows open.
-        if (BrowserWindow.getAllWindows().length === 0) createWindow()
+        if (BrowserWindow.getAllWindows().length === 0)
+            MainWindow.createWindow()
     })
 })
 

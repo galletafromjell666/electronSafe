@@ -23,14 +23,15 @@ function Mount(): JSX.Element {
     }
 
     const handleMountButtonClick = async (): Promise<void> => {
-        console.log('Mounting!')
-        const data = await window.api.mountEncryptedContainer({
+        window.api.mountEncryptedContainer({
             path: targetContainerPath,
             password,
         })
-        console.log('mount result', data)
         resetInputs()
     }
+
+    const isMountButtonEnabled =
+        !isEmpty(password) && !isEmpty(targetContainerPath)
     return (
         <div className="live-area relative m-2 overflow-hidden rounded-lg border-2 p-4 pb-0">
             <div>
@@ -68,6 +69,7 @@ function Mount(): JSX.Element {
                             <Button
                                 className="w-1/2"
                                 onClick={() => handleMountButtonClick()}
+                                disabled={!isMountButtonEnabled}
                             >
                                 Mount encrypted container
                             </Button>

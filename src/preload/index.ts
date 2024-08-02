@@ -28,6 +28,13 @@ const getVolumeDetails = async (path: string): Promise<DiskUsage> =>
 const getAvailableVolumes = async (): Promise<Drive[]> =>
     ipcRenderer.invoke('get_available_volumes')
 
+const ipc = {
+    on: (channel, listener): Electron.IpcRenderer =>
+        ipcRenderer.on(channel, listener),
+    removeListener: (channel, listener): Electron.IpcRenderer =>
+        ipcRenderer.removeListener(channel, listener),
+}
+
 export const api = {
     sendPingToMainProcess,
     createEncryptedContainer,
@@ -45,6 +52,7 @@ if (process.contextIsolated) {
     try {
         contextBridge.exposeInMainWorld('electron', electronAPI)
         contextBridge.exposeInMainWorld('api', api)
+        contextBridge.exposeInMainWorld('ipc', ipc)
     } catch (error) {
         console.error(error)
     }
@@ -53,4 +61,6 @@ if (process.contextIsolated) {
     window.electron = electronAPI
     // @ts-ignore (define in dts)
     window.api = api
+    // @ts-ignore (define in dts)
+    window.ipc = ipc
 }
