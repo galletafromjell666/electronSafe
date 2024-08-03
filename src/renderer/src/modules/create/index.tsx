@@ -164,12 +164,30 @@ function Create(): JSX.Element {
     const handleNextButton = useCallback(() => {
         if (formStep === FormStep.VolumeInfo) {
             setFormStep(FormStep.Encryption)
+            return
         } else if (formStep === FormStep.Encryption) {
             setFormStep(FormStep.Password)
+            return
         }
-        // TODO: Add here the call to the 'backend'
-        return
-    }, [formStep])
+        // Default case is sending info to the main process
+
+        window.api.createEncryptedContainer({
+            path,
+            password,
+            size: containerDetails.containerSize,
+            hash: containerDetails.hashAlgorithm,
+            encryption: containerDetails.encryptionAlgorithm,
+            fileSystem: containerDetails.fileSystem,
+        })
+    }, [
+        containerDetails.containerSize,
+        containerDetails.encryptionAlgorithm,
+        containerDetails.fileSystem,
+        containerDetails.hashAlgorithm,
+        formStep,
+        password,
+        path,
+    ])
 
     return (
         <div className="live-area relative m-2 rounded-lg border-2 p-4 pb-0">

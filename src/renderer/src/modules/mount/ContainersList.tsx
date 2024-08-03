@@ -11,7 +11,10 @@ function ContainersList(): JSX.Element {
     const [containers, setContainers] = useState<MountedContainer[]>([])
 
     useEffect(() => {
-        const handleMount = (_event: unknown, data: MountedContainer): void => {
+        const handleMountEventFromMain = (
+            _event: unknown,
+            data: MountedContainer
+        ): void => {
             setContainers((prevContainers) => {
                 if (
                     prevContainers.some(
@@ -23,10 +26,29 @@ function ContainersList(): JSX.Element {
                 return [...prevContainers, data]
             })
         }
-        window.ipc.on('MOUNT_COMMAND_COMPLETED', handleMount)
 
+        const handleUnMountEventFromMain = (
+            _event: unknown,
+            data: MountedContainer
+        ): void => {
+            setContainers((prevContainers) => {
+                return prevContainers.filter(
+                    (c) => c.driveLetter !== data.driveLetter
+                )
+            })
+        }
+
+        window.ipc.on('UN_MOUNT_COMMAND_COMPLETED', handleUnMountEventFromMain)
+        window.ipc.on('MOUNT_COMMAND_COMPLETED', handleMountEventFromMain)
         return (): void => {
-            window.ipc.removeListener('MOUNT_COMMAND_COMPLETED', handleMount)
+            window.ipc.removeListener(
+                'MOUNT_COMMAND_COMPLETED',
+                handleMountEventFromMain
+            )
+            window.ipc.removeListener(
+                'UN_MOUNT_COMMAND_COMPLETED',
+                handleUnMountEventFromMain
+            )
         }
     }, [])
 

@@ -9,6 +9,10 @@ const sendPingToMainProcess = (): void => ipcRenderer.send('ping')
 const createEncryptedContainer = async (data: {
     path: string
     password: string
+    size: number
+    hash: string
+    encryption: string
+    fileSystem: string
 }): Promise<string> => ipcRenderer.invoke('create_container', data)
 
 const mountEncryptedContainer = async (data: {

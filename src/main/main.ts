@@ -47,27 +47,43 @@ app.whenReady().then(() => {
 
     ptyProcess.onData((data) => {
         buffer += data // Append incoming data to the buffer
-
+        // TODO: Support other OS
         // Split buffer by the Windows line ending \x0D\x0A
         const lines = buffer.split('\x0D\x0A')
         // Process each complete line (all but the last element of the split array)
         for (let i = 0; i < lines.length - 1; i++) {
             const line = lines[i]
-            if (line.includes('MOUNT_A') && !line.includes('PS')) {
+            if (line.includes('MOUNT_A') && !line.includes('-Wait')) {
                 const dataArr = line.split('*')
-                if (dataArr.length >= 4) {
-                    const containerPath = dataArr[2].trim()
-                    const driveLetter = dataArr[3].trim()
-                    MainWindow.Window.webContents.send(
-                        'MOUNT_COMMAND_COMPLETED',
-                        {
-                            containerPath,
-                            driveLetter,
-                        }
-                    )
-                } else {
-                    console.warn('Unexpected format for MOUNT_A line:', line)
-                }
+                const status = dataArr[1].trim()
+                const containerPath = dataArr[2]?.trim()
+                const driveLetter = dataArr[3]?.trim()
+                if (status.includes('1')) return // FAIL
+                MainWindow.Window.webContents.send('MOUNT_COMMAND_COMPLETED', {
+                    containerPath,
+                    driveLetter,
+                })
+            }
+            if (line.includes('UN_MOUNT_E') && !line.includes('-Wait')) {
+                const dataArr = line.split('*')
+                const status = dataArr[1].trim()
+                const driveLetter = dataArr[2]?.trim()
+                if (status.includes('1')) return // FAIL
+                MainWindow.Window.webContents.send(
+                    'UN_MOUNT_COMMAND_COMPLETED',
+                    {
+                        driveLetter,
+                    }
+                )
+            }
+            if (line.includes('CREATE_A') && !line.includes('-Wait')) {
+                const dataArr = line.split('*')
+                const status = dataArr[1].trim()
+                const containerPath = dataArr[2]?.trim()
+                if (status.includes('1')) return // FAIL
+                MainWindow.Window.webContents.send('CREATE_COMPLETED', {
+                    containerPath,
+                })
             }
         }
         buffer = lines[lines.length - 1]
@@ -77,13 +93,8 @@ app.whenReady().then(() => {
         ptyProcess.write(command + '\r')
 
     ipcMain.handle('create_container', async (_event, data) => {
-        // WORKING CODE FOR WINDOWS ONLY
-        // TODO: Update like the container_mount so you the EXIT CODE
-        const createCommand =
-            '& ' +
-            `"${formatExecutableLocation}" /create "${data.path}" /size "20M" /password ${data.password} /encryption AES /hash sha-512 /filesystem fat32 /pim 0 /silent`
+        const createCommand = `$process = Start-Process -FilePath "${formatExecutableLocation}" -ArgumentList '/create ${data.path}','/silent','/pim 0','/size ${data.size}M','/hash ${data.hash}', '/password ${data.password}','/encryption ${data.encryption}','/filesystem ${data.fileSystem}' -PassThru -Wait; Write-Host "CREATE_A*"$process.ExitCode*${data.path}`
         runCommandoOnPty(createCommand)
-        return '200 OK'
     })
 
     ipcMain.handle('container_mount', async (_event, data) => {
@@ -94,7 +105,7 @@ app.whenReady().then(() => {
 
     ipcMain.handle('container_unmount', async (_event, data) => {
         const { mountLetter } = data
-        const unMountCommand = `$process = Start-Process -FilePath "${normalExecutableLocation}" -ArgumentList '/q','/d ${mountLetter}' -PassThru -Wait; Write-Host "UN_MOUNT_A*"$process.ExitCode*"${mountLetter}"`
+        const unMountCommand = `$process = Start-Process -FilePath "${normalExecutableLocation}" -ArgumentList '/q','/silent','/d ${mountLetter}' -PassThru -Wait; Write-Host "UN_MOUNT_E*"$process.ExitCode*"${mountLetter}"`
         runCommandoOnPty(unMountCommand)
     })
 
