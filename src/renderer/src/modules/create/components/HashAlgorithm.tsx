@@ -1,9 +1,10 @@
 import { Combobox } from '@renderer/components/ui/combobox'
 
 const hashes = [
-    { label: 'SHA-512', value: 'sha_512' },
+    { label: 'SHA-256', value: 'sha-256' },
+    { label: 'SHA-512', value: 'sha-512' },
     { label: 'Whirlpool', value: 'whirlpool' },
-    { label: 'SHA-256', value: 'sha-_256' },
+    { label: 'Blake2s', value: 'blake2s' },
 ]
 interface HashAlgorithmProps {
     setHashAlgorithm: (a: string) => void

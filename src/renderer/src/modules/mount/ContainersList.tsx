@@ -30,8 +30,8 @@ function ContainersList(): JSX.Element {
         }
     }, [])
 
-    const handleDismountButtonClick = (a): void => {
-        console.log(a)
+    const handleDismountButtonClick = (mountLetter: string): void => {
+        window.api.unMountEncryptedContainer({ mountLetter })
     }
 
     return (
@@ -56,7 +56,9 @@ function ContainersList(): JSX.Element {
                         <div className="action-cell pointer-events-none my-auto w-[20%] opacity-0 transition-colors">
                             <Button
                                 variant="outline"
-                                onClick={() => handleDismountButtonClick(e)}
+                                onClick={() =>
+                                    handleDismountButtonClick(e.driveLetter)
+                                }
                             >
                                 <HardDriveUpload className="mr-2" />
                                 Dismount

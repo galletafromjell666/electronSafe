@@ -2,8 +2,18 @@ import { Combobox } from '@renderer/components/ui/combobox'
 
 const algorithms = [
     { label: 'AES', value: 'aes' },
-    { label: 'AES(Twofish)', value: 'aes_two_fish' },
+    { label: 'Serpent', value: 'serpent' },
+    { label: 'Twofish', value: 'twofish' },
     { label: 'Camellia', value: 'camellia' },
+    { label: 'Kuznyechik', value: 'kuznyechik' },
+    { label: 'AES(Twofish(Serpent))', value: 'aes(twofish(serpent))' },
+    { label: 'Serpent(AES)', value: 'serpent(aes)' },
+    { label: 'Serpent(Twofish(AES))', value: 'serpent(twofish(aes))' },
+    { label: 'Twofish(Serpent)', value: 'twofish(serpent)' },
+    { label: 'Camellia(Kuznyechik)', value: 'camellia(kuznyechik)' },
+    { label: 'Kuznyechik(Twofish)', value: 'kuznyechik(twofish)' },
+    { label: 'Camellia(Serpent)', value: 'camellia(serpent)' },
+    { label: 'Kuznyechik(AES)', value: 'kuznyechik(aes)' },
 ]
 
 interface EncryptionAlgorithmProps {

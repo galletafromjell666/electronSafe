@@ -16,6 +16,9 @@ const mountEncryptedContainer = async (data: {
     password: string
 }): Promise<string> => ipcRenderer.invoke('container_mount', data)
 
+const unMountEncryptedContainer = async (data: { mountLetter: string }) =>
+    ipcRenderer.invoke('container_unmount', data)
+
 const showNativeOpenDialog = async (options: any) =>
     ipcRenderer.sendSync('show_native_open_dialog', options)
 
@@ -37,6 +40,7 @@ const ipc = {
 
 export const api = {
     sendPingToMainProcess,
+    unMountEncryptedContainer,
     createEncryptedContainer,
     showNativeOpenDialog,
     showNativeSaveDialog,

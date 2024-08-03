@@ -89,7 +89,13 @@ app.whenReady().then(() => {
     ipcMain.handle('container_mount', async (_event, data) => {
         const mountLetter = 'G'
         const mountCommand = `$process = Start-Process -FilePath "${normalExecutableLocation}" -ArgumentList '/q','/v ${data.path}','/l ${mountLetter}','/silent','/p ${data.password}' -PassThru -Wait; Write-Host "MOUNT_A*"$process.ExitCode*"${data.path}*${mountLetter}"`
-        ptyProcess.write(mountCommand + '\r')
+        runCommandoOnPty(mountCommand)
+    })
+
+    ipcMain.handle('container_unmount', async (_event, data) => {
+        const { mountLetter } = data
+        const unMountCommand = `$process = Start-Process -FilePath "${normalExecutableLocation}" -ArgumentList '/q','/d ${mountLetter}' -PassThru -Wait; Write-Host "UN_MOUNT_A*"$process.ExitCode*"${mountLetter}"`
+        runCommandoOnPty(unMountCommand)
     })
 
     ipcMain.on('show_native_open_dialog', (event, options) => {

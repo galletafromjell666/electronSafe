@@ -2,8 +2,9 @@ import { Combobox } from '@renderer/components/ui/combobox'
 
 const fileSystems = [
     { label: 'NTFS', value: 'ntfs' },
-    { label: 'FAT', value: 'fat' },
+    { label: 'FAT32', value: 'fat32' },
     { label: 'exFAT', value: 'exfat' },
+    { label: 'none', value: 'none' },
 ]
 
 interface FileSystemProps {
