@@ -135,6 +135,20 @@ app.whenReady().then(() => {
         return await driveList.list()
     })
 
+    ipcMain.on('frameEvent', (_, action) => {
+        if (action === 'close') {
+            MainWindow.Window.close()
+        }
+        if (action === 'minimize') {
+            MainWindow.Window.minimize()
+        }
+        if (action === 'maximize') {
+            MainWindow.Window.isMaximized()
+                ? MainWindow.Window.restore()
+                : MainWindow.Window.maximize()
+        }
+    })
+
     app.on('activate', function () {
         // On macOS it's common to re-create a window in the app when the
         // dock icon is clicked and there are no other windows open.

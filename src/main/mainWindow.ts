@@ -13,6 +13,7 @@ class MainWindow {
     async createWindow(): Promise<void> {
         // Create the browser window.
         this.Window = new BrowserWindow({
+            titleBarStyle: 'hidden',
             useContentSize: true,
             width: 900,
             minWidth: 400,

@@ -35,11 +35,14 @@ const getVolumeDetails = async (path: string): Promise<DiskUsage> =>
 const getAvailableVolumes = async (): Promise<Drive[]> =>
     ipcRenderer.invoke('get_available_volumes')
 
+const sendFrameEvent = (action): void => ipcRenderer.send('frameEvent', action)
 const ipc = {
     on: (channel, listener): Electron.IpcRenderer =>
         ipcRenderer.on(channel, listener),
     removeListener: (channel, listener): Electron.IpcRenderer =>
         ipcRenderer.removeListener(channel, listener),
+    removeAllListeners: (channel): Electron.IpcRenderer =>
+        ipcRenderer.removeAllListeners(channel),
 }
 
 export const api = {
@@ -51,6 +54,7 @@ export const api = {
     getVolumeDetails,
     getAvailableVolumes,
     mountEncryptedContainer,
+    sendFrameEvent,
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

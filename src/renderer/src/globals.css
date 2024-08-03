@@ -78,11 +78,20 @@
 }
 
 .live-area {
-    @apply h-[calc(100vh-66px)];
+    @apply h-[calc(100vh-61px)];
+}
+
+.frame {
+    -webkit-app-region: drag;
+}
+
+.frame Button, .frame a{
+    -webkit-app-region: no-drag;
+    cursor: pointer;
 }
 
 .mounted-containers {
-    @apply h-[calc(100vh-420px)];
+    @apply h-[calc(100vh-418px)];
     @apply overflow-y-auto;
 }
 

@@ -1,5 +1,6 @@
 import { Button } from '@renderer/components/ui/button'
-import { HardDriveUpload } from 'lucide-react'
+import { isEmpty } from 'lodash'
+import { HardDriveUpload, ServerOff } from 'lucide-react'
 import { useEffect, useState } from 'react'
 interface MountedContainer {
     containerPath: string
@@ -41,19 +42,24 @@ function ContainersList(): JSX.Element {
         window.ipc.on('UN_MOUNT_COMMAND_COMPLETED', handleUnMountEventFromMain)
         window.ipc.on('MOUNT_COMMAND_COMPLETED', handleMountEventFromMain)
         return (): void => {
-            window.ipc.removeListener(
-                'MOUNT_COMMAND_COMPLETED',
-                handleMountEventFromMain
-            )
-            window.ipc.removeListener(
-                'UN_MOUNT_COMMAND_COMPLETED',
-                handleUnMountEventFromMain
-            )
+            window.ipc.removeAllListeners('MOUNT_COMMAND_COMPLETED')
+            window.ipc.removeAllListeners('UN_MOUNT_COMMAND_COMPLETED')
         }
     }, [])
 
     const handleDismountButtonClick = (mountLetter: string): void => {
         window.api.unMountEncryptedContainer({ mountLetter })
+    }
+
+    if (isEmpty(containers)) {
+        return (
+            <div className="flex h-full flex-1 flex-col items-center justify-center space-y-4 rounded-lg border-2 p-2">
+                <h4 className="text-xl font-medium tracking-tight">
+                    No mounted containers available
+                </h4>
+                <ServerOff />
+            </div>
+        )
     }
 
     return (

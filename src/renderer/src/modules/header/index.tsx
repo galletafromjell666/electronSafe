@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { routeNames } from '../constants'
 import {
     NavigationMenu,
@@ -9,62 +9,79 @@ import {
 } from '@renderer/components/ui/navigation-menu'
 import {
     HardDriveDownloadIcon,
+    Minus,
     PackagePlus,
+    Scaling,
     Settings,
-    SunMoon,
+    X,
 } from 'lucide-react'
-import { Button } from '@renderer/components/ui/button'
-import { useTheme } from '@renderer/ThemeProvider'
 
 function Header(): JSX.Element {
     const { pathname } = useLocation()
-    const { setTheme, theme } = useTheme()
+    const navigate = useNavigate()
     // TODO: Fix warning with the link component
+
+    const onButtonClick = (action) => (): void => {
+        window.api.sendFrameEvent(action)
+    }
+
     return (
-        <NavigationMenu className="w-full max-w-[none] justify-between border-b-2 p-1">
+        <NavigationMenu className="frame w-full max-w-[none] justify-between border-b-2 p-1">
             <NavigationMenuList>
                 <NavigationMenuItem>
-                    <Link to={routeNames.Create}>
-                        <NavigationMenuLink
-                            active={pathname === routeNames.Create}
-                            className={navigationMenuTriggerStyle()}
-                        >
-                            <PackagePlus className="mr-2" />
-                            Create
-                        </NavigationMenuLink>
-                    </Link>
+                    <NavigationMenuLink
+                        active={pathname === routeNames.Create}
+                        className={navigationMenuTriggerStyle()}
+                        onClick={() => navigate(routeNames.Create)}
+                    >
+                        <PackagePlus className="mr-2" />
+                        Create
+                    </NavigationMenuLink>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                    <Link to={routeNames.Mount}>
-                        <NavigationMenuLink
-                            active={pathname === routeNames.Mount}
-                            className={navigationMenuTriggerStyle()}
-                        >
-                            <HardDriveDownloadIcon className="mr-2" />
-                            Mount
-                        </NavigationMenuLink>
-                    </Link>
+                    <NavigationMenuLink
+                        active={pathname === routeNames.Mount}
+                        className={navigationMenuTriggerStyle()}
+                        onClick={() => navigate(routeNames.Mount)}
+                    >
+                        <HardDriveDownloadIcon className="mr-2" />
+                        Mount
+                    </NavigationMenuLink>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                    <Link to={routeNames.Settings}>
-                        <NavigationMenuLink
-                            active={pathname === routeNames.Settings}
-                            className={navigationMenuTriggerStyle()}
-                        >
-                            <Settings className="mr-2" />
-                            Settings
-                        </NavigationMenuLink>
-                    </Link>
+                    <NavigationMenuLink
+                        active={pathname === routeNames.Settings}
+                        className={navigationMenuTriggerStyle()}
+                        onClick={() => navigate(routeNames.Settings)}
+                    >
+                        <Settings className="mr-2" />
+                        Settings
+                    </NavigationMenuLink>
                 </NavigationMenuItem>
             </NavigationMenuList>
-            <Button
-                variant="outline"
-                size="icon"
-                className="justify-self-end"
-                onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-            >
-                <SunMoon />
-            </Button>
+            <div className="flex space-x-2">
+                <button
+                    className="frame-button"
+                    onClick={onButtonClick('minimize')}
+                    aria-label="minimize button"
+                >
+                    <Minus />
+                </button>
+                <button
+                    aria-label="resize button"
+                    className="frame-button"
+                    onClick={onButtonClick('maximize')}
+                >
+                    <Scaling />
+                </button>
+                <button
+                    aria-label="close button"
+                    className="frame-button"
+                    onClick={onButtonClick('close')}
+                >
+                    <X />
+                </button>
+            </div>
         </NavigationMenu>
     )
 }
