@@ -179,6 +179,13 @@ function Create(): JSX.Element {
             encryption: containerDetails.encryptionAlgorithm,
             fileSystem: containerDetails.fileSystem,
         })
+
+        // reset state
+        setPath('')
+        setPassword('')
+        setContainerDetails(initialContainerDetailsState)
+        setVolumeDetails(null)
+        setFormStep(FormStep.VolumeInfo)
     }, [
         containerDetails.containerSize,
         containerDetails.encryptionAlgorithm,

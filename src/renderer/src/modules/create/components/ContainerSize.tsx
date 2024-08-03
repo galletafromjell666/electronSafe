@@ -21,8 +21,7 @@ function ContainerSize({
             </h4>
             <div className="grid grid-cols-2 p-4">
                 <div>
-                    <p className="leading-7">Size</p>
-                    {/*TODO: Add MB to the end of the INPUT */}
+                    <p className="leading-7">Size (MB)</p>
                     <Input
                         className="mt-2 w-[80%]"
                         onChange={(e) =>

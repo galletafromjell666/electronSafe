@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog, Notification } from 'electron'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import pty from 'node-pty'
 import * as diskUsage from 'diskusage'
@@ -53,7 +53,7 @@ app.whenReady().then(() => {
         // Process each complete line (all but the last element of the split array)
         for (let i = 0; i < lines.length - 1; i++) {
             const line = lines[i]
-            if (line.includes('MOUNT_A') && !line.includes('-Wait')) {
+            if (line.includes('MOUNT_A') && !line.includes('ExitCode')) {
                 const dataArr = line.split('*')
                 const status = dataArr[1].trim()
                 const containerPath = dataArr[2]?.trim()
@@ -64,7 +64,7 @@ app.whenReady().then(() => {
                     driveLetter,
                 })
             }
-            if (line.includes('UN_MOUNT_E') && !line.includes('-Wait')) {
+            if (line.includes('UN_MOUNT_E') && !line.includes('ExitCode')) {
                 const dataArr = line.split('*')
                 const status = dataArr[1].trim()
                 const driveLetter = dataArr[2]?.trim()
@@ -76,11 +76,15 @@ app.whenReady().then(() => {
                     }
                 )
             }
-            if (line.includes('CREATE_A') && !line.includes('-Wait')) {
+            if (line.includes('CREATE_A') && !line.includes('ExitCode')) {
                 const dataArr = line.split('*')
                 const status = dataArr[1].trim()
                 const containerPath = dataArr[2]?.trim()
                 if (status.includes('1')) return // FAIL
+                new Notification({
+                    title: 'Encrypted container created',
+                    body: `You can now mount your container at ${containerPath}`,
+                }).show()
                 MainWindow.Window.webContents.send('CREATE_COMPLETED', {
                     containerPath,
                 })
