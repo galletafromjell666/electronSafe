@@ -39,11 +39,11 @@ function ContainersList(): JSX.Element {
             })
         }
 
-        window.ipc.on('UN_MOUNT_COMMAND_COMPLETED', handleUnMountEventFromMain)
-        window.ipc.on('MOUNT_COMMAND_COMPLETED', handleMountEventFromMain)
+        window.ipc.on('unmount_command_completed', handleUnMountEventFromMain)
+        window.ipc.on('mount_command_completed', handleMountEventFromMain)
         return (): void => {
-            window.ipc.removeAllListeners('MOUNT_COMMAND_COMPLETED')
-            window.ipc.removeAllListeners('UN_MOUNT_COMMAND_COMPLETED')
+            window.ipc.removeAllListeners('mount_command_completed')
+            window.ipc.removeAllListeners('unmount_command_completed')
         }
     }, [])
 

@@ -1,13 +1,18 @@
 import { app, BrowserWindow, ipcMain, dialog, Notification } from 'electron'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
+import MainWindow from './mainWindow'
 import pty from 'node-pty'
 import * as diskUsage from 'diskusage'
 import * as driveList from 'drivelist'
-import MainWindow from './mainWindow'
+import SharedStore from './store'
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
+
+app.on('ready', async () => {
+    await SharedStore.init()
+})
 
 app.whenReady().then(() => {
     MainWindow.createWindow()
@@ -23,6 +28,7 @@ app.whenReady().then(() => {
 
     // IPC test
     ipcMain.on('ping', () => console.log('pong'))
+
     // VC stuff
 
     // TODO: Make a setting page for this
@@ -59,7 +65,7 @@ app.whenReady().then(() => {
                 const containerPath = dataArr[2]?.trim()
                 const driveLetter = dataArr[3]?.trim()
                 if (status.includes('1')) return // FAIL
-                MainWindow.Window.webContents.send('MOUNT_COMMAND_COMPLETED', {
+                MainWindow.Window.webContents.send('mount_command_completed', {
                     containerPath,
                     driveLetter,
                 })
@@ -70,7 +76,7 @@ app.whenReady().then(() => {
                 const driveLetter = dataArr[2]?.trim()
                 if (status.includes('1')) return // FAIL
                 MainWindow.Window.webContents.send(
-                    'UN_MOUNT_COMMAND_COMPLETED',
+                    'unmount_command_completed',
                     {
                         driveLetter,
                     }
@@ -83,11 +89,14 @@ app.whenReady().then(() => {
                 if (status.includes('1')) return // FAIL
                 new Notification({
                     title: 'Encrypted container created',
-                    body: `You can now mount your container at ${containerPath}`,
+                    body: `You can now mount your container ${containerPath}`,
                 }).show()
-                MainWindow.Window.webContents.send('CREATE_COMPLETED', {
-                    containerPath,
-                })
+                MainWindow.Window.webContents.send(
+                    'create_container_completed',
+                    {
+                        containerPath,
+                    }
+                )
             }
         }
         buffer = lines[lines.length - 1]

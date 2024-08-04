@@ -36,6 +36,13 @@ const getAvailableVolumes = async (): Promise<Drive[]> =>
     ipcRenderer.invoke('get_available_volumes')
 
 const sendFrameEvent = (action): void => ipcRenderer.send('frameEvent', action)
+
+const setStoreKey = (key: string, value: unknown) => {
+    return ipcRenderer.invoke('set_store_key', { key, value })
+}
+
+const getStoreKey = (key: string): Promise<unknown> => ipcRenderer.invoke('get_store_key', key)
+
 const ipc = {
     on: (channel, listener): Electron.IpcRenderer =>
         ipcRenderer.on(channel, listener),
@@ -55,6 +62,8 @@ export const api = {
     getAvailableVolumes,
     mountEncryptedContainer,
     sendFrameEvent,
+    setStoreKey,
+    getStoreKey,
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
