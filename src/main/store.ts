@@ -6,6 +6,17 @@ export interface StoreInterface {
     [key: string]: unknown
 }
 
+/*
+const formatExecutableLocation =
+        'C:\\Program Files\\VeraCrypt\\VeraCrypt Format.exe'
+
+const normalExecutableLocation =
+        'C:\\Program Files\\VeraCrypt\\VeraCrypt.exe'
+*/
+
+const defaultStoreValue = {
+    mainProgramLocation: 'C:\\Program Files\\VeraCrypt\\VeraCrypt.exe',
+}
 class Store {
     data: StoreInterface
     path: string
@@ -20,24 +31,36 @@ class Store {
         this.data = await this._getData()
     }
 
-    _getPath(): string {
-        return path.join(app.getPath('userData'), 'store.json')
-    }
-
-    async _getData(): Promise<StoreInterface> {
-        const data = await fs.promises.readFile(this.path)
-        const parsedData = JSON.parse(data.toString())
-        return parsedData
-    }
-
     get(key): unknown {
         return this.data[key]
     }
 
     async set(key: string, val: unknown): Promise<StoreInterface> {
-        this.data[key] = val
-        await fs.promises.writeFile(this.path, JSON.stringify(this.data))
+        try {
+            this.data[key] = val
+            await fs.promises.writeFile(this.path, JSON.stringify(this.data))
+        } catch (error) {
+            console.error('Error writing to the file:', error)
+        }
         return this.data
+    }
+
+    _getPath(): string {
+        return path.join(app.getPath('userData'), 'store.json')
+    }
+
+    async _getData(): Promise<StoreInterface> {
+        try {
+            const data = await fs.promises.readFile(this.path, 'utf8')
+            if (!data) {
+                return defaultStoreValue
+            }
+            const parsedData = JSON.parse(data)
+            return parsedData
+        } catch (error) {
+            console.error('Error reading or parsing the file:', error)
+            return defaultStoreValue
+        }
     }
 
     _initHandlers(): void {
