@@ -13,15 +13,15 @@ const createEncryptedContainer = async (data: {
     hash: string
     encryption: string
     fileSystem: string
-}): Promise<string> => ipcRenderer.invoke('create_container', data)
+}) => ipcRenderer.send('create_container', data)
 
-const mountEncryptedContainer = async (data: {
+const mountEncryptedContainer = (data: {
     path: string
     password: string
-}): Promise<string> => ipcRenderer.invoke('container_mount', data)
+}) => ipcRenderer.send('container_mount', data)
 
-const unMountEncryptedContainer = async (data: { mountLetter: string }) =>
-    ipcRenderer.invoke('container_unmount', data)
+const unMountEncryptedContainer =  (data: { mountLetter: string }) =>
+    ipcRenderer.send('container_unmount', data)
 
 const showNativeOpenDialog = async (options: any) =>
     ipcRenderer.sendSync('show_native_open_dialog', options)

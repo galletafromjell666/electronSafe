@@ -128,15 +128,15 @@ class Vc {
     }
 
     _initHandlers(): void {
-        ipcMain.handle('create_container', async (_event, data) => {
+        ipcMain.on('create_container', async (_event, data) => {
             this._sendCreateCommandToPty(data)
         })
 
-        ipcMain.handle('container_mount', async (_event, data) => {
+        ipcMain.on('container_mount', async (_event, data) => {
             this._sendMountCommandToPty(data)
         })
 
-        ipcMain.handle('container_unmount', async (_event, data) => {
+        ipcMain.on('container_unmount', async (_event, data) => {
             this._sendUnMountCommandToPty(data)
         })
     }
