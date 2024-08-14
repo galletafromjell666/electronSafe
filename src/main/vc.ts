@@ -1,7 +1,10 @@
 import pty from 'node-pty'
 import { ipcMain, Notification } from 'electron'
+const difference = require('lodash/difference')
+import * as driveList from 'drivelist'
 import SharedStore from './store'
 import MainWindow from './mainWindow'
+import { generateAlphabetArray } from './utils'
 
 class Vc {
     mainProgramPath: string
@@ -73,9 +76,8 @@ class Vc {
         })
     }
 
-    _sendMountCommandToPty(data): void {
-        // TODO: support more letters xd
-        const mountLetter = 'G'
+    async _sendMountCommandToPty(data): Promise<void> {
+        const mountLetter = await this._getAvailableMountLetter()
         const mountCommand = `$process = Start-Process -FilePath "${this.mainProgramPath}" -ArgumentList '/q','/v ${data.path}','/l ${mountLetter}','/silent','/p ${data.password}' -PassThru -Wait; Write-Host "MOUNT_A*"$process.ExitCode*"${data.path}*${mountLetter}"`
         this.runCommandoOnPty(mountCommand)
     }
@@ -127,6 +129,23 @@ class Vc {
         })
     }
 
+    async _getUsedMountLetters(): Promise<string[]> {
+        const usedDrives = await driveList.list()
+        const usedMountLetters = usedDrives.flatMap((device) => {
+            const mountPaths = device.mountpoints
+            return mountPaths.map((m) => m.path.split(':').at(0))
+        })
+        return usedMountLetters as string[]
+    }
+    async _getAvailableMountLetter(): Promise<string> {
+        const usedMountLetters = await this._getUsedMountLetters()
+        const availableLetters = difference(
+            generateAlphabetArray(),
+            usedMountLetters
+        )
+
+        return availableLetters.at(0)
+    }
     _initHandlers(): void {
         ipcMain.on('create_container', async (_event, data) => {
             this._sendCreateCommandToPty(data)
