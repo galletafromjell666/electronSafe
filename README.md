@@ -43,6 +43,41 @@ The project currently functions exclusively on Windows. With minor adjustments, 
 - Vite
 
 ## Development 
+Running node-pty and electron requires some extra dependencies besides a node js installation, the document specifies the versions that I am using, However you can try with newer
+
+### Python 
+Python is required, you can install Python from the Microsoft Store, the project was build with [Python 3.12](https://www.microsoft.com/store/productId/9NCVDN91XZQP?ocid=pdpshare)
+
+### Windows SDK
+`Desktop Development with C++` and `MSVC v143 - VS 2022 C++ x64/x86 Spectre-mitigated libs (Latest)` are required, those can be installed using the [Visual Studio Installer](https://developer.microsoft.com/en-us/windows/downloads/windows-sdk/)
+
+VS Config
+```json
+{
+  "version": "1.0",
+  "components": [
+    "Microsoft.VisualStudio.Component.Roslyn.Compiler",
+    "Microsoft.Component.MSBuild",
+    "Microsoft.VisualStudio.Component.CoreBuildTools",
+    "Microsoft.VisualStudio.Workload.MSBuildTools",
+    "Microsoft.VisualStudio.Component.Windows10SDK",
+    "Microsoft.VisualStudio.Component.VC.CoreBuildTools",
+    "Microsoft.VisualStudio.Component.VC.Tools.x86.x64",
+    "Microsoft.VisualStudio.Component.VC.Redist.14.Latest",
+    "Microsoft.VisualStudio.Component.Windows11SDK.22621",
+    "Microsoft.VisualStudio.Component.VC.CMake.Project",
+    "Microsoft.VisualStudio.Component.TestTools.BuildTools",
+    "Microsoft.VisualStudio.Component.VC.ASAN",
+    "Microsoft.VisualStudio.Component.TextTemplating",
+    "Microsoft.VisualStudio.Component.VC.CoreIde",
+    "Microsoft.VisualStudio.ComponentGroup.NativeDesktop.Core",
+    "Microsoft.VisualStudio.Workload.VCTools",
+    "Microsoft.VisualStudio.Component.VC.Runtimes.x86.x64.Spectre"
+  ],
+  "extensions": []
+}
+```
+
 Clone the project
 ```bash
 git clone https://github.com/galletafromjell666/electronSafe.git
