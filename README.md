@@ -43,15 +43,15 @@ The project currently functions exclusively on Windows. With minor adjustments, 
 - Vite
 
 ## Development 
-Running node-pty and electron requires some extra dependencies besides a node js installation, the document specifies the versions that I am using, However you can try with newer
+Running node-pty and Electron requires additional dependencies beyond a Node.js installation. The document specifies the versions I am using, but you can experiment with newer ones.
 
 ### Python 
-Python is required, you can install Python from the Microsoft Store, the project was build with [Python 3.12](https://www.microsoft.com/store/productId/9NCVDN91XZQP?ocid=pdpshare)
+Python is required, you can install Python from the Microsoft Store, the project was built with [Python 3.12](https://www.microsoft.com/store/productId/9NCVDN91XZQP?ocid=pdpshare)
 
 ### Windows SDK
 `Desktop Development with C++` and `MSVC v143 - VS 2022 C++ x64/x86 Spectre-mitigated libs (Latest)` are required, those can be installed using the [Visual Studio Installer](https://developer.microsoft.com/en-us/windows/downloads/windows-sdk/)
 
-VS Config
+.vsconfig
 ```json
 {
   "version": "1.0",
@@ -88,11 +88,14 @@ Move inside the project
 cd electronSafe
 ```
 
-You will need to install other tools in your system to use node-pty, please read [this section from the node-py documentation](https://github.com/microsoft/node-pty#windows). Once you finish you can continue with the set up:
-
 Install modules
 ```bash
 npm install
+```
+
+Rebuild native Node.JS modules against the version that Electron is using
+```bash
+.\node_modules\.bin\electron-rebuild.cmd
 ```
 
 Run
