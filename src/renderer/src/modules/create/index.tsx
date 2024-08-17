@@ -196,6 +196,14 @@ function Create(): JSX.Element {
         path,
     ])
 
+    const handlePreviousButton = useCallback(() => {
+        if (formStep === FormStep.Encryption) {
+            setFormStep(FormStep.VolumeInfo)
+            return
+        }
+        setFormStep(FormStep.Encryption)
+    }, [formStep])
+
     return (
         <div className="live-area relative m-2 rounded-lg border-2 p-4 pb-0">
             <h2 className="scroll-m-20 pb-4 text-2xl font-semibold tracking-tight transition-colors first:mt-0">
@@ -206,11 +214,13 @@ function Create(): JSX.Element {
             </div>
             <div className="absolute bottom-0 left-0 w-full rounded-lg border-t-2 p-2">
                 <div className="flex flex-row justify-end gap-2">
-                    <Button>Previous</Button>
                     <Button
-                        disabled={!isStepValid}
-                        onClick={() => handleNextButton()}
+                        disabled={formStep === FormStep.VolumeInfo}
+                        onClick={handlePreviousButton}
                     >
+                        Previous
+                    </Button>
+                    <Button disabled={!isStepValid} onClick={handleNextButton}>
                         Next
                     </Button>
                 </div>

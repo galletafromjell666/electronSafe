@@ -88,7 +88,7 @@ Move inside the project
 cd electronSafe
 ```
 
-Install modules
+Install modules 
 ```bash
 npm install
 ```
