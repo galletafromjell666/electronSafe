@@ -1,7 +1,15 @@
 # ElectronSafe
 ElectronSafe is a desktop application built with Electron and React that leverages the command-line interface of Veracrypt to provide a user-friendly graphical user interface for creating and mounting encrypted containers. 
 
-## Screenshots
+## Media
+
+### Video with the complete flow
+
+
+
+https://github.com/user-attachments/assets/99b852f1-2103-4b42-92a1-14162ebe1e90
+
+
 
 ### Create an encrypted container
 
